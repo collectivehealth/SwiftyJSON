@@ -60,20 +60,14 @@ public struct JSON {
     
     - parameter data:  The NSData used to convert to json.Top level object in data is an NSArray or NSDictionary
     - parameter opt:   The JSON serialization reading options. `.AllowFragments` by default.
-    - parameter error: error The NSErrorPointer used to return the error. `nil` by default.
     
     - returns: The created JSON
     */
-    public init(data:NSData, options opt: NSJSONReadingOptions = .AllowFragments, error: NSErrorPointer = nil) {
-        do {
-            let object: AnyObject = try NSJSONSerialization.JSONObjectWithData(data, options: opt)
-            self.init(object)
-        } catch let aError as NSError {
-            error.memory = aError
-            self.init(NSNull())
-        }
+    public init(data:NSData, options opt: NSJSONReadingOptions = .AllowFragments) throws {
+        let object: AnyObject = try NSJSONSerialization.JSONObjectWithData(data, options: opt)
+        self.init(object)
     }
-    
+  
     /**
     Creates a JSON using the object.
     
@@ -885,7 +879,7 @@ extension JSON {
         get {
             switch self.type {
             case .String:
-                if let encodedString_ = self.rawString.stringByAddingPercentEscapesUsingEncoding(NSUTF8StringEncoding) {
+                 if let encodedString_ = self.rawString.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLQueryAllowedCharacterSet()) {
                     return NSURL(string: encodedString_)
                 } else {
                     return nil
